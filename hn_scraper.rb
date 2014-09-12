@@ -45,7 +45,7 @@ class Application
     puts "Post Points: #{@post.points}".magenta
     puts "Number of comments: #{@post.comments.length}"
 
-    CommentViewer.new(@post.comments).view
+    CommentViewer.new(@post).view
   end
 
   def add_comment

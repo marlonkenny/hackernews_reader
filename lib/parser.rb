@@ -5,9 +5,10 @@ class Parser
   POST_URL      = 'https://news.ycombinator.com/item?id='
 
   def self.parse_post(id)
-    url = POST_URL + post.id.to_s
-    page = Nokogiri::HTML(open(url))
-    post = Post.new(title, id, url, points, owner)
+    url = POST_URL + id.to_s
+    @single_post = Nokogiri::HTML(open(url))
+    post = Post.new(get_post_title, get_post_id, get_post_url, get_post_points, get_post_owner)
+    parse_comments(post)
     post
   end
 
@@ -32,28 +33,28 @@ class Parser
   end
 
   def self.parse_front_page_posts
-    @page['items'].map do |item|
+    @single_post['items'].map do |item|
       Post.new(item['title'], item['id'], item['url'], item['points'], item['postedBy'])
     end
   end
 
-  def get_post_id
-    @page.css('form input[name=parent]')[0]['value']    
+  def self.get_post_id
+    @single_post.css('form input[name=parent]')[0]['value']    
   end
 
-  def get_post_title
-    @page.css('.title a')[0].text
+  def self.get_post_title
+    @single_post.css('.title a')[0].text
   end
 
-  def get_post_url
-    @page.css('.title a')[0]['href']
+  def self.get_post_url
+    @single_post.css('.title a')[0]['href']
   end
 
-  def get_post_points
-    @page.css('.subtext span')[0].text.match(/\d{0,5}/).to_s
+  def self.get_post_points
+    @single_post.css('.subtext span')[0].text.match(/\d{0,5}/).to_s
   end
 
-  def get_post_owner
-    @page.css('.subtext > a:nth-child(2)')[0].text
+  def self.get_post_owner
+    @single_post.css('.subtext > a:nth-child(2)')[0].text
   end
 end
