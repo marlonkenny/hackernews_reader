@@ -1,5 +1,5 @@
 class Post
-  attr_reader :page, :id, :title, :url, :points, :owner
+  attr_reader :id, :title, :url, :points, :owner
   attr_accessor :comments 
 
   def initialize(title, id, url, points, owner, comments=[])

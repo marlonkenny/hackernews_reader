@@ -8,9 +8,9 @@ class FrontPageViewer
     puts "Hit enter to continue, type 'view' to view comments or 'quit' to finish\n\n"
     @posts.each do |post|
       puts "#{post.title}".blue
-      puts "URL: #{post.url}".green
-      puts "Points: #{post.points}".magenta
-      puts "Posted by: #{post.owner}".red
+      puts "URL: #{post.url}"
+      puts "Points: #{post.points}"
+      puts "Posted by: #{post.owner.magenta}"
       response = $stdin.gets.chomp
       if response == 'view'
         Parser.parse_comments(post)

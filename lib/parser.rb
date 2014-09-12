@@ -1,6 +1,6 @@
 class Parser
 
-  HN_FRONT_PAGE = 'front_page.json'
+  HN_FRONT_PAGE = 'http://api.ihackernews.com/page'
   HN_POST       = 'http://api.ihackernews.com/'
   POST_URL      = 'https://news.ycombinator.com/item?id='
 
@@ -28,12 +28,11 @@ class Parser
       content = comment.css('.comment font').text
       Comment.new(user_id, content)
     end
-    puts post.comments.inspect
     post.comments = comment_array
   end
 
   def self.parse_front_page_posts
-    @single_post['items'].map do |item|
+    @page['items'].map do |item|
       Post.new(item['title'], item['id'], item['url'], item['points'], item['postedBy'])
     end
   end
