@@ -4,17 +4,21 @@ require 'nokogiri'
 require 'json'
 require 'colorize'
 # require 'activesupport'
+require './lib/parser_controller'
+require './lib/hn_parser'
+require './lib/reddit_parser.rb'
 require './lib/post'
 require './lib/front_page'
 require './lib/comment'
 require './lib/comment_viewer'
 require './lib/front_page_viewer'
-require './lib/parser'
+require './lib/errors.rb'
 
 class Application
   attr_reader :post
 
-  HN_URL       = /news\.ycombinator\.com\/item\?id=\d{7}/
+  HN_URL     = /news\.ycombinator\.com\/item\?id=\d{7}/
+  REDDIT_URL = /reddit\.com\/r\/\w*\//
 
   def initialize(commands)
     @page       = commands[0]
@@ -24,22 +28,38 @@ class Application
 
   def start
     if @page =~ HN_URL
-      parse_post(@page.match(/id=(\d{7})/)[1])
-    elsif @page == 'frontpage'
-      parse_front_page
+      parse_post(@page.match(/id=(\d{7})/)[1], 'hn')
+    elsif @page =~ REDDIT_URL
+      parse_post(@page.match(/\/r\/\w*\/comments\/(\w{6})/)[1], 'reddit')
+    elsif @page == 'hn-frontpage'
+      parse_hn_front_page
+    elsif @page == 'reddit-frontpage'
+      parse_r_front_page
     else
       puts "Enter valid Hacker News post URL or 'frontpage'"
     end
   end
 
-  def parse_front_page
-    puts "HACKER NEWS ====================================".black.on_red
-    @front_page = Parser.parse_front_page
+  def parse_hn_front_page
+    puts "===========================================================================".black.on_red
+    puts "==HACKER NEWS==============================================================".black.on_red
+    puts "===========================================================================".black.on_red
+    @front_page = ParserController.parse_front_page('hn')
+    raise InvalidPageFormat, "Page format invalid" if !@front_page.is_a?(Array)
     FrontPageViewer.new(@front_page).view
   end
 
-  def parse_post(post_id)
-    @post = Parser.parse_post(post_id)
+  def parse_r_front_page
+    puts "===========================================================================".black.on_blue
+    puts "==REDDIT===================================================================".black.on_blue
+    puts "===========================================================================".black.on_blue
+    @front_page = ParserController.parse_front_page('reddit')
+    raise InvalidPageFormat, "Page format invalid" if !@front_page.is_a?(Array)
+    FrontPageViewer.new(@front_page).view
+  end
+
+  def parse_post(post_id, site)
+    @post = ParserController.parse_post(post_id, site)
     puts "Post Title: #{@post.title}".blue
     puts "Post URL: #{@post.url}".green
     puts "Post Points: #{@post.points}".magenta

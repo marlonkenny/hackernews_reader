@@ -1,23 +1,37 @@
-class Parser
+class HNParser
 
   HN_FRONT_PAGE = 'http://api.ihackernews.com/page'
   HN_POST       = 'http://api.ihackernews.com/'
   POST_URL      = 'https://news.ycombinator.com/item?id='
 
-  def self.parse_post(id)
-    url = POST_URL + id.to_s
+  def self.front_page
+    begin
+      @page = JSON.parse(open(HN_FRONT_PAGE).read)
+      parse_front_page_posts
+    rescue StandardError=>e
+      puts "Error #{e}"
+      if retries > 0
+        puts "\tTrying #{retries} more times\n"
+        retries -= 1
+        sleep 2
+        retry
+      end
+    end
+  end
+
+  def self.parse_front_page_posts
+    @page['items'].map do |item|
+      Post.new(item['title'], item['id'], item['url'], item['points'], item['postedBy'])
+    end
+  end
+
+  def self.single_post(post_id)
+    url = POST_URL + post_id.to_s
     @single_post = Nokogiri::HTML(open(url))
     post = Post.new(get_post_title, get_post_id, get_post_url, get_post_points, get_post_owner)
     parse_comments(post)
     post
   end
-
-  def self.parse_front_page
-    @page = JSON.parse(open(HN_FRONT_PAGE).read)
-    parse_front_page_posts
-  end
-
-  private
 
   def self.parse_comments(post)
     url = POST_URL + post.id.to_s
@@ -31,18 +45,12 @@ class Parser
     post.comments = comment_array
   end
 
-  def self.parse_front_page_posts
-    @page['items'].map do |item|
-      Post.new(item['title'], item['id'], item['url'], item['points'], item['postedBy'])
-    end
+  def self.get_post_title
+    @single_post.css('.title a')[0].text
   end
 
   def self.get_post_id
     @single_post.css('form input[name=parent]')[0]['value']    
-  end
-
-  def self.get_post_title
-    @single_post.css('.title a')[0].text
   end
 
   def self.get_post_url
@@ -56,4 +64,5 @@ class Parser
   def self.get_post_owner
     @single_post.css('.subtext > a:nth-child(2)')[0].text
   end
+
 end

@@ -1,0 +1,2 @@
+class InvalidPageFormat < StandardError
+end

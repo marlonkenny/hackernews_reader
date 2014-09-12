@@ -13,7 +13,7 @@ class FrontPageViewer
       puts "Posted by: #{post.owner.magenta}"
       response = $stdin.gets.chomp
       if response == 'view'
-        Parser.parse_comments(post)
+        ParserController.parse_comments(post)
         CommentViewer.new(post).view
       elsif response == 'quit'
         return
