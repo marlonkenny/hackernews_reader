@@ -1,12 +1,13 @@
 class Post
-  attr_reader :comments, :page, :item_id, :title, :url, :points, :owner
+  attr_reader :page, :id, :title, :url, :points, :owner
+  attr_accessor :comments 
 
-  def initialize(page, item_id, title, url, points, owner, comments)
-    @page     = page
-    @item_id  = item_id
+  def initialize(title, id, url, points, owner, comments=[])
     @title    = title
+    @id       = id
     @url      = url
     @points   = points
+    @owner    = owner
     @comments = comments
   end
 
