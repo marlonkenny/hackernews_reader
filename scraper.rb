@@ -13,6 +13,7 @@ require './lib/comment'
 require './lib/comment_viewer'
 require './lib/front_page_viewer'
 require './lib/errors.rb'
+require './lib/recursive_find'
 
 class Application
   attr_reader :post
@@ -46,7 +47,7 @@ class Application
     puts "===========================================================================".black.on_red
     @front_page = ParserController.parse_front_page('hn')
     raise InvalidPageFormat, "Page format invalid" if !@front_page.is_a?(Array)
-    FrontPageViewer.new(@front_page).view
+    FrontPageViewer.new(@front_page, 'hn').view
   end
 
   def parse_r_front_page
@@ -55,15 +56,15 @@ class Application
     puts "===========================================================================".black.on_blue
     @front_page = ParserController.parse_front_page('reddit')
     raise InvalidPageFormat, "Page format invalid" if !@front_page.is_a?(Array)
-    FrontPageViewer.new(@front_page).view
+    FrontPageViewer.new(@front_page, 'reddit').view
   end
 
   def parse_post(post_id, site)
     @post = ParserController.parse_post(post_id, site)
-    puts "Post Title: #{@post.title}".blue
-    puts "Post URL: #{@post.url}".green
-    puts "Post Points: #{@post.points}".magenta
-    puts "Number of comments: #{@post.comments.length}"
+    puts "#{@post.title}".blue
+    puts "URL: #{@post.url}"
+    puts "Points: #{@post.points}"
+    puts "Posted by: #{@post.owner.magenta}"
 
     CommentViewer.new(@post).view
   end

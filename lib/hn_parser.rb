@@ -1,10 +1,10 @@
 class HNParser
 
   HN_FRONT_PAGE = 'http://api.ihackernews.com/page'
-  HN_POST       = 'http://api.ihackernews.com/'
   POST_URL      = 'https://news.ycombinator.com/item?id='
 
   def self.front_page
+    retries = 2
     begin
       @page = JSON.parse(open(HN_FRONT_PAGE).read)
       parse_front_page_posts

@@ -1,7 +1,8 @@
 class FrontPageViewer
 
-  def initialize(posts)
+  def initialize(posts, site)
     @posts = posts
+    @site  = site
   end
 
   def view
@@ -13,7 +14,7 @@ class FrontPageViewer
       puts "Posted by: #{post.owner.magenta}"
       response = $stdin.gets.chomp
       if response == 'view'
-        ParserController.parse_comments(post)
+        ParserController.parse_comments(post, @site)
         CommentViewer.new(post).view
       elsif response == 'quit'
         return
